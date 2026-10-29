@@ -1,4 +1,4 @@
-name: CMake Build
+name: Geode Mod Build
 
 on:
   push:
@@ -13,6 +13,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    # ขั้นตอนเพิ่มเติม: สั่งติดตั้ง Geode CLI และ SDK ลงในเครื่องจำลองอัตโนมัติ
+    - name: Setup Geode CLI & SDK
+      uses: geode-sdk/setup-geode@v2
+      with:
+        build-config: false
+
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
 
@@ -22,6 +28,6 @@ jobs:
     - name: Upload Build Output
       uses: actions/upload-artifact@v4
       with:
-        name: my-cpp-program
+        name: my-geode-mod
         path: ${{github.workspace}}/build/
         
