@@ -1,33 +1,40 @@
-name: Geode Mod Build
+name: Build Geode Mod
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - "**" # รันทุกครั้งที่มีการ push โค้ด
+  workflow_dispatch: # เปิดให้กดรันเองมือได้ด้วย
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: Windows
+            os: windows-latest
+          - name: Android64
+            os: ubuntu-latest
+            target: Android64
+
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
 
     steps:
     - uses: actions/checkout@v4
 
-    # ขั้นตอนเพิ่มเติม: สั่งติดตั้ง Geode CLI และ SDK ลงในเครื่องจำลองอัตโนมัติ
-    - name: Setup Geode CLI & SDK
-      uses: geode-sdk/setup-geode@v2
+    - name: Build the mod
+      uses: geode-sdk/build-geode-mod@main
       with:
-        build-config: false
+        combine: true
+        target: ${{ matrix.config.target }}
 
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
-
-    - name: Build Project
-      run: cmake --build ${{github.workspace}}/build --config Release
-
-    - name: Upload Build Output
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: my-geode-mod
-        path: ${{github.workspace}}/build/
-        
+        name: Geode-Mod-Output
+        path: |
+          build/**/*.geode
+          build/*.geode
+          
